@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+
+    <!-- AXIOS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>회원가입</h1>    
+
+    <form name="form_register">
+        <label for="userid">아이디</label>
+        <input type="text" id="userid" name="userid" required /><br/>
+
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" required /><br/>
+
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" name="password" required /><br/>
+
+        <button type="button" onclick="register();">가입하기</button><br/>
+    </form>
+
+    <a href="/user/signin">로그인</a>
+
+    <script>
+        function register(){
+            console.log('signup click');
+
+            const form = document.forms['form_register'];
+
+            console.log(form.userid.value);
+            console.log(form.name.value);
+            console.log(form.password.value);
+
+            axios({
+                method: 'POST',
+                url: '/user/signup',
+                data: {
+                    userid: form.userid.value,
+                    name: form.name.value,
+                    password: form.password.value,
+                },
+            }).then((res) => {
+                console.log('res>> ', res);
+                return res.data;
+            }).then((data) => {
+                console.log('data >> ', data);
+
+                alert('회원가입 성공');
+
+                document.location.href = '/user/signin';
+            })
+        }
+    </script>
+</body>
+</html>

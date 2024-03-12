@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+
+    <!-- AXIOS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>로그인</h1>    
+
+    <form name="form_info" action="/user/profile" method="POST">
+        <input type="hidden" name="userid" />
+    </form>
+
+    <form name="form_login">
+        <label for="userid">ID</label>
+        <input type="text" id="userid" name="userid" required /> <br/><br/>
+
+        <label for="password">PW</label>
+        <input type="password" id="password" name="password" required /> <br/><br/>
+
+        <button type="button" onclick="login();">로그인</button>
+
+        <a href="/user/signup">회원가입</a>
+    </form>
+
+    <script>
+        async function login(){
+            const form_login = document.forms['form_login'];
+
+            axios({
+                method: 'POST',
+                url: '/user/signin',
+                data:{
+                    userid : form_login.userid.value,
+                    password: form_login.password.value,
+                },
+            }).then((res) => {
+                return res.data;
+            }).then((data) => {
+                if(data){
+                    alert('로그인 성공');
+
+                    const form_info = document.forms['form_info'];
+                    form_info.userid.value = form_login.userid.value;
+                    form_info.submit();
+                }else{
+                    alert('로그인 실패');
+                    form_login.reset();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

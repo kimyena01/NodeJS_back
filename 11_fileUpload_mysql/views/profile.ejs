@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+
+    <!-- AXIOS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>마이페이지</h1>    
+
+    <form name="form_profile">
+        <input type="hidden" id="id" value="<%= data.id %>" />
+
+        <label for="userid">ID</label>
+        <input type="text" id="userid" name="userid" value="<%= data.userid %>" readonly /> <br/><br/>
+
+        <label for="password">비밀번호</label>
+        <input type="password" id="password" name="password" value="<%= data.password %>" required /><br/><br/>
+
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" value="<%= data.name %>" required /> <br/><br/>
+
+        <label for="prof_img_url">이미지 추가</label>
+        <input type="file" id="dynamic_file" name="dynamic_file" accept="image/*"/> <br/><br/>
+        
+
+        <button type="button" onclick="editBtn();">사진 추가 or 수정하기</button>
+
+        <form name="form_profile">
+            <input type="text" id="uid" name="uid" value="<%= data.id %>">
+        </form>
+
+        <img src="" width="200" height="200">
+        <!-- <img src="<%= data.prof_img_url %>" id="showImg" width="200" height="200"/> -->
+
+
+    </form>
+
+    <script>
+        function editBtn(){
+            console.log('사진 수정하기');
+
+            const form = document.forms['form_profile'];
+            console.log("id >> ", form.uid.value);
+
+
+            const formData = new FormData();
+            const file = document.getElementById('dynamic_file');
+
+            formData.append('dynamic_file', file.files[0]);
+            formData.append('id', form.uid.value);
+
+            console.log("*****************");
+            console.log("id >>> ", form.uid.value);
+
+            console.log('front에서 formData 보기 >> ', formData);
+            
+            axios({
+                method: 'POST',
+                url: '/user/profile/dynamicFile',
+                data: formData,
+                headers:{
+                    "Content-Type" : "multipart/form-data",
+                },
+            }).then(function(response){
+                console.log("+++++++++++++++++++++");
+                console.log("response.data.path>>> ", response.data.path);
+                document.querySelector('img').src = response.data.path;
+            })
+        }
+    </script>
+</body>
+</html>

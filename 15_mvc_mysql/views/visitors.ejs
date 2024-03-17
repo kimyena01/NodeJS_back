@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form name="visitor-form">
+        <fieldset>
+            <legend>방명록 등록</legend>
+
+            <input type="text" id="name" placeholder="사용자 이름"><br/>
+            <input type="text" id="comment" placeholder="방명록 작성"><br/>
+
+            <div id="button-group">
+                <button type="button" onclick="createVisitor();">등록</button>
+            </div>
+        </fieldset>
+    </form>
+
+    <br/><br/>
+
+    <table border="1" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>작성자</th>
+                <th>방명록</th>
+                <th>수정</th>
+                <th>삭제</th>
+            </tr>
+        </thead>
+        <!-- 추가되어야 할 tr 위치 -> 시작 태그의 앞(beforebegin) -->
+        <tbody>
+            <!-- data: db에서 가지고 오는 데이터 => 새로고침해도 데이터 남아있음 -->
+            <% for(let i = 0; i < data.length; i++) { %>
+                <!-- 추가되어야 할 tr 위치 => 시작태그의 뒤(afterbegin) -->
+                <tr id="tr_<%= data[i].id %>">
+                    <td><%= data[i].id %></td>
+                    <td><%= data[i].name %></td>
+                    <td><%= data[i].comment %></td>
+                    <td><button type="button" onclick="editVisitor('<%= data[i].id %>');">수정</button> </td>
+                    <td><button type="button" onclick="deleteVisitor(this, '<%= data[i].id %>');">삭제</button> </td>
+                </tr>
+                <% } %>
+                <!-- 추가되어야 할 tr 위치 -> 종료태그의 앞(beforeend) -->
+        </tbody>
+        <!-- 추가되어야 할 tr 위치 -> 종료 태그의 뒤(afterend) -->
+    </table>
+
+<script>
+    const tbody = document.querySelector('tbody');
+    const buttonGroup = document.querySelector('#button-group');
+
+    function createVisitor(){
+        console.log('click 등록 버튼');
+
+        const form = document.forms['visitor-form'];
+
+        if(!form.name.value.length){
+            alert('이름 기입!');
+            clearInput();
+            return;
+        }
+        if(form.comment.value.length === 0){
+            alert('방명록 기입!');
+            clearInput();
+            return;
+        }
+        if(form.name.value.length > 10){
+            alert('글자수 맞게 입력해주세요');
+            clearInput();
+            return;
+        }
+
+        const data = {
+            name: form.name.value,
+            comment: form.comment.value
+        };
+
+        fetch('/visitors/write', {
+            method: 'POST',
+            headers:{
+                'Content-Type' : 'application/json',
+            },
+            body: JSON.stringify(data),
+
+        }).then((response) => {
+            console.log('fetch >> ' + response);
+
+            return response.json();
+        }).then(function(data){
+            const html= `
+            <tr id="tr_${data.id}">
+                <td>${data.id}</td>
+                <td>${data.name}</td>
+                <td>${data.comment}</td>
+                <td><button type="button" onclick="editVisitor('${data.id}');">수정</button> </td>
+                <td><button type="button" onclick="deleteVisitor(this, '${data.id}');">삭제</button> </td>
+            </tr>
+            `;
+
+            //테이블에 추가된 정보를 "바로" 보여주기
+            //data 객체에 담긴 값을 이용해서 tbody 태그의 자식으로 tr 한줄이 추가되는 코드
+            //js: insertAdjacentHTML() -> 특정 요소에 html 코드 추가 가능
+            //vs. innerHTML() : 기존 html 코드 지우고 덮어씌움
+            //jquery : append()
+            tbody.insertAdjacentHTML('beforeend',html); //ver js.
+            //$('tbody').append(html); //ver jquery
+
+            clearInput();
+        });
+    }
+
+    async function editVisitor(id){
+        console.log('name check >>' + name);
+        console.log('comment check >>' + comment);
+        console.log(id);
+
+        const html=`
+        <button type="button" onclick="editDo(${id})";>변경</button>
+        <button type="button" onclick="editCancel()";>취소</button>
+        `;
+
+        buttonGroup.innerHTML=html;
+
+        let result = await fetch(`/visitors/get?id=${id}`,{
+            method: 'GET',
+        }).then(function(response){
+
+            return response.json();
+        }).then(function(data){
+            return data;
+        })
+
+        console.log('방문자 하나 조회하기');
+        
+        const form = document.forms['visitor-form'];
+
+        form.name.value = result.name;
+        form.comment.value = result.comment;
+    }
+
+    function editDo(id){
+        const form = document.forms['visitor-form'];
+
+        const data = {
+            id: id,
+            name: form.name.value,
+            comment: form.comment.value,
+        };
+
+        fetch('/visitors/edit', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then(function(response){
+
+            return response.text();
+        }).then(function(data){
+
+            alert(data);
+
+            const children = document.querySelector(`#tr_${id}`).children; //배열 크기
+
+            children[1].textContent = form.name.value;
+            children[2].textContent = form.comment.value;
+
+            editCancel();
+
+            const html = `
+            <button type="button" onclick="createVisitor();">등록</button>
+            `;
+
+            buttonGroup.innerHTML = html;
+        })
+    }
+
+    function editCancel(){
+        clearInput();
+
+        const html = `
+        <button type="button" onclick="createVisitor();">등록</button>
+        `;
+
+        buttonGroup.innerHTML = html;
+    }
+
+    function deleteVisitor(obj, id){
+        let confirm_alert = confirm('삭제하시겠습니까?');
+
+        if(!confirm_alert){
+            return;
+        }
+
+        const data = {
+            id: id
+        };
+
+        fetch('/visitors/delete', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then(function(response){
+            
+            return response.text();
+        }).then(function(data){
+            //obj: 삭제버튼 자기자신
+            obj.parentElement.parentElement.remove();
+        })
+
+    }
+
+
+    function clearInput(){
+        const form = document.forms['visitor-form'];
+        form.name.value='';
+        form.comment.value='';
+    }
+
+
+</script>
+</body>
+</html>

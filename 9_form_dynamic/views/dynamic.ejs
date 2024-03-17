@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dynamic form</title>
+</head>
+<body>
+    <h1><%= title %></h1>
+
+    <form name="register">
+        <label for="name">이름</label>
+        <input type="text" id="name" name="name" required>
+
+        <h4>gender</h4>
+        <label for="male">man</label>
+        <input type="radio" id="gender" name="male" value="male" required>
+        <label for="female">woman</label>
+        <input type="radio" id="gender" name="female" value="female" required>
+        
+        <br/>
+
+        <button type="button" onclick="fetchGet();">fetchGet 제출</button>
+        <button type="button" onclick="fetchPOST();">fetchPost 제출</button>
+    </form>
+
+    <div class="result"></div>
+
+<script>
+    const resultBox = document.querySelector('.result');
+
+    function fetchGet(){
+        console.log('##############click fetchGet#################');
+
+        const form = document.forms['register'];
+        
+        fetch(`/fetch?name=${form.name.value}&gender=${form.gender.value}`, {
+            method: 'GET',
+        }).then(function(response){
+            console.log("response >> " + response);
+
+            return response.json(); //응답을 json 형태로 파싱
+
+        }).then(function(data){
+            console.log(data);
+
+            resultBox.textContent = `GET /fetch 요청 완료! ${data.name}님은 ${data.gender}이다.`;
+            resultBox.style.color="limegreen";
+        })
+    }
+
+
+    function fetchPOST(){
+        console.log("#####click fetchPOST########");
+
+        const form = document.forms['register'];
+
+        const data = {
+            name: form.name.value,
+            gender: form.gender.value,
+        };
+
+        fetch('/fetch', {
+            method: 'POST',
+            headers: {
+                'Content-Type' : 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then(function(response){
+            console.log(response);
+
+            return response.json();
+        }).then(function(data){
+            console.log(data);
+
+            resultBox.textContent = `POST /fetch 요청완료! ${data.name}님은 ${data.gender}이다.`;
+            resultBox.style.color = "hotpink";
+        })
+        
+    }
+</script>
+</body>
+</html>

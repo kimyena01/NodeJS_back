@@ -53,7 +53,9 @@ exports.postProfile = (req, res) => {
     models.User.findOne({
         where: {userid: req.body.userid}
     }).then((result) => {
+        co
         console.log('finddeOne >> ', result);
+        conso
 
         if(result != null){
             console.log(result.userid);

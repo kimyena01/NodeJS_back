@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>회원 정보</h1>
+
+    <a href="/user">HOME</a>
+    
+    <form name="form_profile">
+        <label for="userId">ID</label>
+        <input type="hidden" id="id" value="<%= data.id %>"/>
+
+        <input id="userId" name="userId" type="text" value="<%= data.userid %>" readonly><br/>
+        
+        <label for="userPw">PW</label>
+        <input type="userPw" id="userPw" name="userPw" value="<%= data.pw %>" required><br/>
+
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="<%= data.name %>" required><br/>
+    
+    </form>
+</body>
+</html>

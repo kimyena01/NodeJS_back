@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>signup</title>
+</head>
+<body>
+    <h1>회원가입</h1>
+
+    <form name="register">
+        <label for="userId">ID</label>
+        <input id="userId" name="userId" type="text" required><br/>
+
+        <label for="userPw">PW</label>
+        <input id="userPw" name="userPw" type="password" required><br/>
+
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" required><br/>
+
+        <button type="button" onclick="registerbtn();">회원가입</button>
+    </form>
+
+    <a href="/user/signin">Login</a>
+
+<script>
+    function registerbtn(){
+        console.log("click btn");
+        const form = document.forms['register'];
+    
+        //폼 유효성 검사
+        if(!form.checkValidity()){
+            form.reportValidity();
+            return;
+        }
+
+        const data = {
+            userId : form.userId.value,
+            userPw : form.userPw.value,
+            name: form.name.value,
+        };
+
+        fetch('/user/signup',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then((res) => {
+            return res.text();
+        }).then((data) => {
+            alert('회원가입 성공!');
+
+            document.location.href='/user/signin';
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+</head>
+<body>
+    <form name="form_info" action="/user/profile" method="POST">
+        <input type="hidden" name="userid">
+    </form>
+
+    <form name="form_login">
+        <label for="userId">ID</label>
+        <input id="userId" name="userId" type="text" required ><br/>
+
+        <label for="userPw">PW</label>
+        <input id="userPw" name="userPw" type="password" required><br/>
+
+        <button type="button" onclick="login();">로그인</button>
+    </form>
+
+    <a href="/user/signup">회원가입하러 가기</a>
+
+<script>
+    function login(){
+        const form_login = document.forms['form_login'];
+
+        if(!form_login.checkValidity()){
+            form_login.reportValidity();
+            return;
+        }
+
+        const data = {
+            userId : form_login.userId.value,
+            userPw : form_login.userPw.value
+        };
+        
+        fetch('/user/signin', {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        }).then((res) => {
+            return res.json();
+        }).then((data) => {
+            if(data){
+                alert('로그인 성공');
+
+                const form_info = document.forms['form_info'];
+                form_info.userid.value = form_login.userId.value;
+
+                //form_info 제출
+                //POST/user/porfile 요청을 수행
+                form_info.submit();
+            }else{
+                alert('로그인 실패');
+                form_login.reset();
+            }
+        })
+    }
+</script>
+</body>
+</html>
